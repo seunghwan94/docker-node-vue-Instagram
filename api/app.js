@@ -25,7 +25,7 @@ const server = http.createServer(app);
 
 const test = {
   "message": "test",
-  "status": "success"
+  "status": "successs"
 };
 
 app.get('/', (req, res) => {
