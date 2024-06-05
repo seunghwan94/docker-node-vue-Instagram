@@ -1,20 +1,26 @@
 <template>
-    <img alt="Vue logo" src="../assets/test.png">
       <div class="login">
         <div class="login-group">
             <span>ID</span>
-            <input v-model="userId" type="text" class="login-id" placeholder="UserID" aria-label="UserID">
+            <input type="text" v-model="userId" class="login-id" placeholder="아이디" aria-label="UserID">
         </div>
         <div class="login-group">
             <span>PW</span>
-            <input v-model="userPw" type="password" class="login-pw" placeholder="UserPW" aria-label="UserPW">
+            <input type="password" v-model="userPw" class="login-pw" placeholder="비밀번호" aria-label="UserPW">
         </div>
         <div class="login-group">
-            <button @click="login">로그인</button>
+            <span style="width: 60px;">Name</span>
+            <input type="text" v-model="userName" class="login-name" placeholder="이름">
         </div>
-        <div class="login-group" style="justify-content:space-between;font-size: 13px;">
-            <a href="#" @click="is_set=1" style="color:gray">아이디/비밀번호 찾기</a>
-            <a href="#" @click="is_set=2" style="color:gray">회원 가입</a>
+        <div class="login-group">
+            <span style="width: 90px;">BirthDay</span>
+            <input type="text" v-model="userBirth" class="login-birth" placeholder="생년월일 (ex. 940327)">
+        </div>
+        <div class="login-group">
+            <button @click="signUp">회원가입</button>
+        </div>
+        <div class="login-group" style="justify-content:center;font-size: 13px;">
+            <a href="#" @click="$emit('isLogin',0)" style="color:gray">뒤로가기</a>
         </div>
       </div>
 </template>
@@ -24,36 +30,18 @@ export default {
         return{
             userId: '',
             userPw: '',
+            userName: '',
+            userBirth: '',
         }
     },
     methods:{
-        login(){
-            this.$emit('login',this.userId,this.userPw);
+        signUp(){
+            this.$emit('signUp',this.userId,this.userPw,this.userName,this.userBirth);
         }
     },  
-    props:{
-        id:String,
-        pw:String,
-    }
 }
 </script>
 <style>
-    .contain {
-  margin: 20px auto;
-  background: white;
-  border: 2px solid gray;
-  border-radius: 15px;
-  height: calc(93vh - 44px);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  align-items: center;
-  max-width: 800px; 
-  min-width: 360px; 
-}
-.contain img {
-  width: 25%;
-}
 
 
 
