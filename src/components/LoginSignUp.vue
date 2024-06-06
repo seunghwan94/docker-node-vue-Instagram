@@ -36,6 +36,24 @@ export default {
     },
     methods:{
         signUp(){
+            // 유효성 검사
+            if (!this.userId) {
+                alert('아이디를 입력하세요.');
+                return;
+            }
+            if (!this.userPw) {
+                alert('비밀번호를 입력하세요.');
+                return;
+            }
+            if (!this.userName) {
+                alert('이름을 입력하세요.');
+                return;
+            }
+            const birthPattern = /^\d{6}$/;
+            if (!birthPattern.test(this.userBirth)) {
+                alert('생년월일은 6자리 숫자여야 합니다 (예: 940327).');
+                return;
+            }
             this.$emit('signUp',this.userId,this.userPw,this.userName,this.userBirth);
         }
     },  

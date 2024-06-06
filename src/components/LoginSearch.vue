@@ -26,6 +26,9 @@
     </transition>
 </template>
 <script>
+import axios from 'axios';
+import { BackURL } from '../main.js';
+
 export default {
     data() {
         return{
@@ -37,8 +40,34 @@ export default {
     },
     methods:{
         search(){
-            this.userPw='test';
-            this.userId='test';
+            // 유효성 검사
+            if (!this.userName) {
+                alert('이름을 입력하세요.');
+                return;
+            }
+            const birthPattern = /^\d{6}$/;
+            if (!birthPattern.test(this.userBirth)) {
+                alert('생년월일은 6자리 숫자여야 합니다 (예: 940327).');
+                return;
+            }
+
+            const userData = {
+                name: this.userName,
+                birth: this.userBirth,
+            };
+
+            axios.post(BackURL+'/findIdPw', userData)
+            .then(response => {
+                // console.log('아이디:', response.data[0]);
+                this.userPw = response.data[0]['user_id'];
+                this.userId = response.data[0]['user_pw'];
+            })
+            .catch(error => {
+                // 회원가입 실패 처리
+                console.error('가입 내역 없음:', error);
+                alert('가입 내역이 없습니다.');
+                return;
+            });         
         }
     },  
 }

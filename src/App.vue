@@ -21,6 +21,7 @@ import LoginSignUp from './components/LoginSignUp.vue';
 import LoginSearch from './components/LoginSearch.vue';
 import MainContain from './components/MainContain.vue';
 import axios from 'axios';
+import { BackURL } from './main.js';
 
 export default {
   name: 'App',
@@ -42,40 +43,57 @@ export default {
     signIn(userId,userPw){
 
       if (!userId) {
-        this.error = '아이디를 입력하세요.';
+        alert('아이디를 입력하세요');
         return;
       }
       if (!userPw) {
-        this.error = '비밀번호를 입력하세요.';
+        alert('비밀번호를 입력하세요');
         return;
       }
-        const userData = {
-            id: this.id,
-            pw: this.pw,
-        };
-
-        axios.post(BackURL+'/login', userData)
-        .then(response => {
-            console.log(response.data[0].id)
-            sessionStorage.setItem('id', response.data[0].id);
-            sessionStorage.setItem('user_id',this.id);
-            sessionStorage.setItem('user_pw',this.pw);
-        
-            this.$router.push('/chat/main');
-        })
-        .catch(error => {
-            // 회원가입 실패 처리
-            console.error('로그인 실패:', error);
-            this.error = error.response.data
-            return;
-        });
-      this.login=true;
+      const userData = {
+          id: userId,
+          pw: userPw,
+      };
+      
+      axios.post(BackURL+'/login', userData)
+      .then(response => {
+          console.log(response.data[0].id)
+          sessionStorage.setItem('id', response.data[0].id);
+          sessionStorage.setItem('user_id',this.id);
+          sessionStorage.setItem('user_pw',this.pw);
+      
+          this.login=true;
+      })
+      .catch(error => {
+          // 회원가입 실패 처리
+          console.log( error.response.data);
+          alert('로그인 실패 \n' +error.response.data);
+          return;
+      });
+      
     },
     // 회원가입
-    signUp(a,b){
-      console.log(a);
-      console.log(b);
-      this.is_login=0;
+    signUp(userId,userPw,userName,userBirth){
+      const userData = {
+          id: userId,
+          pw: userPw,
+          name: userName,
+          birth: userBirth,
+      };
+      console.log(userData);
+
+      axios.post(BackURL+'/signup', userData)
+      .then(response => {
+          console.log(response)
+          alert('회원가입이 되었습니다.');
+          this.is_login=0;
+      })
+      .catch(error => {
+          // 회원가입 실패 처리
+          console.error('회원가입 실패:', error);
+          return;
+      });
+
     }
   },
   components: {

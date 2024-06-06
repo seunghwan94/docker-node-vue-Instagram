@@ -34,6 +34,7 @@ app.get('/', (req, res) => {
 
 app.post('/login', (req, res) => {
   const { id, pw } = req.body;
+
   const query = 'select * from tb_user where user_id = ? and user_pw = ?';
   conn.query(query, [id, pw], (err, result) => {
     if (err) {
