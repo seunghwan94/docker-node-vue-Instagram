@@ -11,7 +11,7 @@
     </transition>
   </div>
   <div v-else class="contain">
-    <MainContain />
+    <MainContain/>
   </div>
 </template>
 

@@ -113,14 +113,15 @@ app.post('/load_post', (req, res) => {
 });
 
 app.post('/create_post', (req, res) => {
-  const { user_id, maintext,subtext } = req.body;
+  const { user_id, updateImg, maintext, subtext, filter } = req.body;
   const currentDate = new Date();
-  const query2 = 'INSERT INTO tb_post (user_id, maintext, subtext, insertdate) VALUES (?, ?, ?, ? )';
-      conn.query(query2, [user_id, maintext, subtext,currentDate], (err, result) => {
+  const query2 = 'INSERT INTO tb_post (user_id, img, maintext, subtext, filter, insertdate) VALUES (?, ?, ?, ?, ?, ? )';
+      conn.query(query2, [user_id, updateImg, maintext, subtext, filter, currentDate], (err, result) => {
       if (err) {
       console.error("Database insert error:", err);
       res.status(500).send('Error inserting data into database');
       } else {
+        con
       res.status(200).send('Post created successfully');
       }
   });
@@ -195,19 +196,34 @@ app.post('/like_off', (req, res) => {
   });
 });
 
-
-
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
+// 이미지 로컬에  다운로드 
+const multer  = require('multer');
+// 이미지 경로
+const uploadDir = path.join(__dirname, '../src/assets/img');
+// multer 설정
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadDir)
+  },
+  filename: function (req, file, cb) {
+    // 이름 설정
+    cb(null, Date.now() + path.extname(file.originalname));
+  }
+})
+const upload = multer({ storage: storage });
+app.post('/postImgDown', upload.single('image'), (req, res) => {
+  // 이미지 파일의 정보 req.file 저장
+  const imagePath = req.file.path;
+  console.log('Image Path:', imagePath);
+  res.send(imagePath);
+});
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 server.listen(3000, () => {
   console.log(`Server running`);
 });
 
-//test
 
 
 
