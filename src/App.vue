@@ -20,6 +20,7 @@ import LoginSignIn from './components/LoginSignIn.vue';
 import LoginSignUp from './components/LoginSignUp.vue';
 import LoginSearch from './components/LoginSearch.vue';
 import MainContain from './components/MainContain.vue';
+import axios from 'axios';
 
 export default {
   name: 'App',
@@ -29,6 +30,7 @@ export default {
       is_login: 0,
       id: '',
       pw: '',
+      // error:''
     }
   },
   methods: {
@@ -37,9 +39,36 @@ export default {
       this.is_login=n;
     },
     // 로그인
-    signIn(a,b){
-      console.log(a);
-      console.log(b);
+    signIn(userId,userPw){
+
+      if (!userId) {
+        this.error = '아이디를 입력하세요.';
+        return;
+      }
+      if (!userPw) {
+        this.error = '비밀번호를 입력하세요.';
+        return;
+      }
+        const userData = {
+            id: this.id,
+            pw: this.pw,
+        };
+
+        axios.post(BackURL+'/login', userData)
+        .then(response => {
+            console.log(response.data[0].id)
+            sessionStorage.setItem('id', response.data[0].id);
+            sessionStorage.setItem('user_id',this.id);
+            sessionStorage.setItem('user_pw',this.pw);
+        
+            this.$router.push('/chat/main');
+        })
+        .catch(error => {
+            // 회원가입 실패 처리
+            console.error('로그인 실패:', error);
+            this.error = error.response.data
+            return;
+        });
       this.login=true;
     },
     // 회원가입

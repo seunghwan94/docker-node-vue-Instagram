@@ -3,7 +3,7 @@ const path = require('path');
 const mariadb = require('mysql');
 
 // 설정 파일의 경로
-const configPath = path.join(__dirname, '..', 'config.json');
+const configPath = path.join(__dirname, '../../', 'config.json');
 
 // 설정 파일 읽기
 const configData = fs.readFileSync(configPath, 'utf8');
