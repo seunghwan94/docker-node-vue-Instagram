@@ -2,7 +2,7 @@
     <div class="post-header">
         <!-- {{post}} -->
         <div style="display: flex; align-items: center;">
-            <img v-if="post.post_img" class="post-user-img" alt="post user img" :src="require(`../assets/img/${post.post_img}`)">
+            <img v-if="post.post_img" class="post-user-img" alt="post user img" :src="require(`../assets/img/${post.user_img}`)">
             <h3>{{ post.user_name }}</h3>
         </div>
         <div style="position: relative; width: 50px; cursor: pointer;">
