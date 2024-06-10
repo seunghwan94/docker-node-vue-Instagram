@@ -11,36 +11,50 @@
         <div class="post-like" style="">
             <font-awesome-icon class="icon" :icon="['fas', 'heart']"  @click="is_set=0"/>
             <font-awesome-icon class="icon" :icon="['far', 'heart']"  @click="is_set=0"/>
-            8 likes</div>
+            8 likes
+        </div>
         <div class="post-main">{{post.post_maintext}}</div>
         <div class="post-sub">{{ post.post_subtext }}</div>
-        <div class="post-date">{{ post.post_insertdate }}</div>
+        <div class="post-date">{{ formattedDate }}</div>
     </div>
 </template>
+
 <script>
 export default {
-    props:{
-        post:Object
+    props: {
+        post: Object
     },
+    computed: {
+        formattedDate() {
+            if (this.post && this.post.post_insertdate) {
+                const date = new Date(this.post.post_insertdate);
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}.${month}.${day}`;
+            }
+            return '';
+        }
+    }
 }
 </script>
+
 <style>
 .post-header {
     display: flex;
     align-items: center;
 }
 .post-user-img {
-    padding:20px;
+    padding: 20px;
     border-radius: 50%;
     width: 40px;
     height: 40px;
     object-fit: cover;
 }
 .post-body {
-  /* background-image: url("../assets/img/dog.png"); */
-  height: 450px;
-  background-position: center;
-  background-size: cover;
+    height: 450px;
+    background-position: center;
+    background-size: cover;
 }
 .post-image {
     width: 100%;
@@ -49,31 +63,31 @@ export default {
 }
 .post-footer {
     margin-left: 20px;
-    padding-top:15px;
+    padding-top: 15px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
 }
 .post-main, .post-sub, .post-date, .post-like {
-    margin:0;
+    margin: 0;
 }
 .post-main {
     font-weight: bold;
 }
 .post-sub {
-    padding:5px;
+    padding: 5px;
     font-size: 15px;
 }
 .post-date {
-    padding:5px;
+    padding: 5px;
     font-size: 13px;
     color: gray;
 }
-.post-like{
+.post-like {
     display: flex;
     width: 90%;
     justify-content: flex-end;
-    padding:5px;
+    padding: 5px;
     font-size: 13px;
     color: gray;
 }

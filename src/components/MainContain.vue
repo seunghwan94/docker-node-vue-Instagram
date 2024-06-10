@@ -11,7 +11,10 @@
     </div>
     <div class="main-body">
         <div v-if="is_main==0" >
-            <MainPost v-for="(a,i) in postList" :key="i" :post="a"/>
+            <div v-if="postList[0]">
+                <MainPost v-for="(a,i) in postList" :key="i" :post="a"/>
+            </div>
+            <div v-else style="display: flex;align-items: center;justify-content: center;height: 75vh;color: gray;font-weight: bold;">게시글이 없습니다.</div>
         </div>
         <MainPostCreateImg v-if="is_main==1" :updateImg="updateImg" :filter="filter" @updateFilter="updateFilter"/>
         <MainPostCreateText v-if="is_main==2" :updateImg="updateImg" :filter="filter" @updateText="updateText"/>
