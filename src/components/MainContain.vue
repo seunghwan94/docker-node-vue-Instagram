@@ -12,7 +12,7 @@
     <div class="main-body">
         <div v-if="is_main==0" >
             <div v-if="postList[0]">
-                <MainPost v-for="(a,i) in postList" :key="i" :post="a" @modify_post="modify_post" @delete_post="delete_post"/>
+                <MainPost v-for="(a,i) in postList" :key="i" :post="a" @modify_post="modify_post" @delete_post="delete_post" @like_post="like_post"/>
             </div>
             <div v-else style="display: flex;align-items: center;justify-content: center;height: 75vh;color: gray;font-weight: bold;">게시글이 없습니다.</div>
         </div>
@@ -74,11 +74,11 @@ export default {
                 });
         },
         loadPost() {
-            axios.post(`${BackURL}/load_post`, {}, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            })
+            const userData = {
+                user_id: this.id
+            };
+
+            axios.post(`${BackURL}/load_post`, userData)
             .then(response => {
                 this.postList = [];
                 this.postList = this.postList.concat(response.data);
@@ -90,7 +90,6 @@ export default {
         },
         profileEdit(updatedUser) {
             // 업데이트된 사용자 정보를 처리
-            console.log(updatedUser);
             alert('회원 정보를 변경 하시겠습니까?');
             
             axios.post(BackURL+'/updateProfile', updatedUser)
@@ -240,6 +239,24 @@ export default {
                 alert('포스팅 오류 \n' +error.response.data);
                 return;
             });
+        },
+        like_post(list){
+            console.log(list);
+            const userData = {
+                user_id: this.id,
+                post_id: list.post_id
+            };
+            axios.post(BackURL+'/like_on_off', userData)
+            .then(response => {
+                console.log(response.data);
+                this.loadPost();
+            })
+            .catch(error => {
+                console.log( error.response.data);
+                alert('포스팅 오류 \n' +error.response.data);
+                return;
+            });
+
         }
     },
     components:{

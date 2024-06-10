@@ -1,6 +1,9 @@
 <template>
     <div class="main-profile-contain">
-        <img :src="require(`../assets/img/${profile[0].img}`)" @click="showModal = true" style="width:40%; border-radius: 50%; cursor: pointer;">
+        
+        <img :src="require(`../assets/img/${profile[0].img}`)" style="width:40%; border-radius: 50%; cursor: pointer;">
+
+
         <div style="display: flex; flex-direction: column; align-items: center;">
             <div class="login-group">
                 <span>ID</span>
@@ -24,10 +27,9 @@
             </div>
 
             <div class="login-group">
-                <button @click="$emit('profileEdit', user)">회원 정보 수정</button>
+                <button @click="$emit('profileEdit', profile[0])">회원 정보 수정</button>
             </div>
         </div>
-        <!-- <MainProfileImgView :images="imageList" :visible="showModal" @updateImage="updateImage" @close="showModal = false"/> -->
     </div>
 </template>
 
@@ -41,8 +43,6 @@ export default {
  data() {
         return {
             profile: { ...this.myProfile },
-            // showModal: false,
-            // imageList: this.getImages()
         };
     },
 }

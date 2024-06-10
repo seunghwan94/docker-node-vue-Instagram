@@ -18,9 +18,13 @@
     </div>
     <div class="post-footer">
         <div class="post-like" style="">
-            <font-awesome-icon class="icon" :icon="['fas', 'heart']" @click="is_set=0"/>
-            <font-awesome-icon class="icon" :icon="['far', 'heart']" @click="is_set=0"/>
-            8 likes
+            <div v-if="post.is_set=='Y'">
+                <font-awesome-icon class="icon" :icon="['fas', 'heart']" @click="likesPost"/>
+            </div>
+            <div v-else>
+                <font-awesome-icon class="icon" :icon="['far', 'heart']" @click="likesPost"/>
+            </div> &nbsp;
+            {{ post.likes }} likes
         </div>
         <div class="post-main">{{ post.post_maintext }}</div>
         <div class="post-sub">{{ post.post_subtext }}</div>
@@ -35,7 +39,7 @@ export default {
     },
     data() {
         return {
-            showMenu: false
+            showMenu: false,
         };
     },
     computed: {
@@ -63,6 +67,9 @@ export default {
             this.showMenu = false;
             this.$emit('delete_post',this.post);
             alert('삭제하기 클릭됨');
+        },
+        likesPost() {
+            this.$emit('like_post',this.post);
         }
     }
 }

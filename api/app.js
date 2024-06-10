@@ -62,7 +62,7 @@ app.post('/signup', (req, res) => {
       if (result.length > 0) {
         res.status(300).send('중복된 아이디 입니다.');
       } else {
-        const query2 = 'INSERT INTO tb_user (user_id, user_pw, name, birth,img, insert_date) VALUES (?, ?, ?, ?, ? )';
+        const query2 = 'INSERT INTO tb_user (user_id, user_pw, name, birth, img, insert_date) VALUES (?, ?, ?, ?, ?, ? )';
         conn.query(query2, [id, pw, name, birth, 'user.png', currentDate], (err, result) => {
           if (err) {
             console.error("Database insert error:", err);
@@ -96,7 +96,7 @@ app.post('/findIdPw', (req, res) => {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 app.post('/load_post', (req, res) => {
-  // const { user_id } = req.body;
+  const { user_id } = req.body;
   const query = `   SELECT 
                     a.id AS post_id,
                     a.user_id AS post_user_id,
@@ -108,12 +108,13 @@ app.post('/load_post', (req, res) => {
                     a.is_delete AS post_is_delete,
                     b.name AS user_name,
                     b.img AS user_img,
-                    (SELECT COUNT(id) FROM tb_likes WHERE a.user_id=user_id AND post_id=a.id AND is_set = "Y")AS likes
+                    (SELECT COUNT(id) FROM tb_likes WHERE post_id=a.id AND is_set = "Y") AS likes,
+                    (SELECT is_set FROM tb_likes WHERE post_id=a.id AND user_id = ?) AS is_set
                     FROM tb_post a 
                     LEFT JOIN tb_user b ON a.user_id=b.id 
                     ORDER BY a.id DESC
 `;
-  conn.query(query, (err, result) => {
+  conn.query(query, [user_id],(err, result) => {
     if (err) {
       console.error("Database select error:", err);
       res.status(500).send('Error select data into database');
@@ -129,7 +130,7 @@ app.post('/load_post', (req, res) => {
 
 app.post('/load_profile', (req, res) => {
   const { id } = req.body;
-  const query = `SELECT * FROM tb_user WHERE USER_id=?`;
+  const query = `SELECT * FROM tb_user WHERE id=?`;
   conn.query(query, [id], (err, result) => {
     if (err) {
       console.error("Database select error:", err);
@@ -162,6 +163,7 @@ app.post('/updateProfile', (req, res) => {
       }
   });
 });
+
 
 app.post('/create_post', (req, res) => {
   const { user_id, updateImg, maintext, subtext, filter } = req.body;
@@ -204,50 +206,45 @@ app.post('/modify_post', (req, res) => {
   });
 });
 
-app.post('/load_like', (req, res) => {
+app.post('/like_on_off', (req, res) => {
   const { user_id,post_id } = req.body;
-  const query = 'select * from tb_likes where user_id = ? and where post_id = ? and is_set = "Y"  DESC';
+  const query = 'select * from tb_likes where user_id = ? and post_id = ?';
   conn.query(query, [user_id,post_id], (err, result) => {
     if (err) {
       console.error("Database select error:", err);
       res.status(500).send('Error select data into database');
     } else {
       if (result.length > 0) {
-        res.status(200).json(result);
+        console.log('like update');
+        if (result[0].is_set=='N'){
+          likes_ck = 'Y';
+        }else{
+          likes_ck = 'N';
+        }
+        const query2 = 'UPDATE tb_likes SET is_set = ? where user_id = ? and post_id = ?';
+        conn.query(query2, [likes_ck, user_id, post_id], (err, result) => {
+          if (err) {
+          console.error("Database insert error:", err);
+          res.status(500).send('Error updated data into database');
+          } else {
+            res.status(200).send('Like offed successfully');
+          }
+        });
       } else {
-        res.status(300).send('올린 게시글이 없습니다');
+        console.log('like insert');
+        const query2 = 'INSERT INTO tb_likes (user_id, post_id,is_set) VALUES (?, ? , "Y")';
+        conn.query(query2, [user_id, post_id], (err, result) => {
+          if (err) {
+            console.error("Database insert error:", err);
+            res.status(500).send('Error INSERT data into database');
+          } else {
+            res.status(200).send('Like inserted successfully');
+          }
+        });
       }
     }
   });
 });
-
-
-app.post('/like_on', (req, res) => {
-  const { user_id,post_id } = req.body;
-  const query2 = 'INSERT INTO tb_likes (user_id, post_id,is_set) VALUES (?, ? , "Y")';
-      conn.query(query2, [user_id, post_id], (err, result) => {
-      if (err) {
-      console.error("Database insert error:", err);
-      res.status(500).send('Error INSERT data into database');
-      } else {
-        res.status(200).send('Like inserted successfully');
-      }
-  });
-});
-app.post('/like_off', (req, res) => {
-  const { user_id,post_id } = req.body;
-  const query2 = 'UPDATE tb_likes SET is_set = "N" where user_id = ? and post_id = ?';
-      conn.query(query2, [user_id, post_id], (err, result) => {
-      if (err) {
-      console.error("Database insert error:", err);
-      res.status(500).send('Error updated data into database');
-      } else {
-        res.status(200).send('Like offed successfully');
-      }
-  });
-});
-
-
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 이미지 로컬에  다운로드 
