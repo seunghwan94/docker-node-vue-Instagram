@@ -97,21 +97,22 @@ app.post('/findIdPw', (req, res) => {
 
 app.post('/load_post', (req, res) => {
   // const { user_id } = req.body;
-  const query = `    SELECT 
-                      a.id AS post_id,
-                      a.user_id AS post_user_id,
-                      a.img AS post_img,
-                      a.maintext AS post_maintext,
-                      a.subtext AS post_subtext,
-                      a.filter AS post_filter,
-                      a.insertdate AS post_insertdate,
-                      a.is_delete AS post_is_delete,
-                      b.name AS user_name,
-                      b.img AS user_img
+  const query = `   SELECT 
+                    a.id AS post_id,
+                    a.user_id AS post_user_id,
+                    a.img AS post_img,
+                    a.maintext AS post_maintext,
+                    a.subtext AS post_subtext,
+                    a.filter AS post_filter,
+                    a.insertdate AS post_insertdate,
+                    a.is_delete AS post_is_delete,
+                    b.name AS user_name,
+                    b.img AS user_img,
+                    (SELECT COUNT(id) FROM tb_likes WHERE a.user_id=user_id AND post_id=a.id)AS likes
                     FROM tb_post a 
                     LEFT JOIN tb_user b ON a.user_id=b.id 
-                    where a.is_delete='N'
-                    ORDER BY a.id DESC`;
+                    ORDER BY a.id DESC
+`;
   conn.query(query, (err, result) => {
     if (err) {
       console.error("Database select error:", err);
@@ -142,6 +143,27 @@ app.post('/load_profile', (req, res) => {
     }
   });
 });
+
+app.post('/updateProfile', (req, res) => {
+  const { user_pw,name,birth,user_id} = req.body;
+  const query2 = `UPDATE tb_post SET  
+                  user_pw = ?
+                  ,name = ?
+                  ,birth = ? 
+                  WHERE user_id = ?`;
+      conn.query(query2, [user_pw, name,birth,user_id], (err, result) => {
+      if (err) {
+      console.error("Database insert error:", err);
+      res.status(500).send('Error UPDATE data into database');
+      } else {
+        res.status(200).send('User updated successfully');
+      }
+  });
+});
+
+
+
+
 app.post('/create_post', (req, res) => {
   const { user_id, updateImg, maintext, subtext, filter } = req.body;
   const currentDate = new Date();
@@ -225,6 +247,8 @@ app.post('/like_off', (req, res) => {
       }
   });
 });
+
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 이미지 로컬에  다운로드 
