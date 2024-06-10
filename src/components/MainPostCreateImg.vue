@@ -1,20 +1,34 @@
 <template >
-    <div class="upload-image" :class="filter" :style="{ backgroundImage: `url(${updateImg})`}"></div>
+    <div class="upload-image" :class="filter" :style="{ backgroundImage: `url(${computedImgUrl})`}"></div>
     <div class="filters">
-        <div v-for="(a,i) in filters" :key="i" class="filter-item" :class="a" @click="selectFilter(a)" :style="{ backgroundImage: `url(${updateImg})`}"></div> 
+        <div v-for="(a, i) in filters" :key="i" class="filter-item" :class="a" @click="selectFilter(a)" :style="{ backgroundImage: `url(${computedImgUrl})`}"></div>
     </div>
 </template>
 <script>
 export default {
-    data(){
-        return{
-            filters : [ "", "aden", "_1977", "brannan", "brooklyn", "clarendon", "earlybird", "gingham", "hudson", 
-                        "inkwell", "kelvin", "lark", "lofi", "maven", "mayfair", "moon", "nashville", "perpetua", 
-                        "reyes", "rise", "slumber", "stinson", "toaster", "valencia", "walden", "willow", "xpro2"],
+    data() {
+        return {
+            filters: ["", "aden", "_1977", "brannan", "brooklyn", "clarendon", "earlybird", "gingham", "hudson",
+                      "inkwell", "kelvin", "lark", "lofi", "maven", "mayfair", "moon", "nashville", "perpetua",
+                      "reyes", "rise", "slumber", "stinson", "toaster", "valencia", "walden", "willow", "xpro2"],
+        }
+    },
+    computed: {
+        computedImgUrl() {
+            if (this.updateImg.startsWith('blob:')) {
+                return this.updateImg;
+            } else {
+                try {
+                    return require(`../assets/img/${this.updateImg}`);
+                } catch (e) {
+                    console.error('Failed to require image:', e);
+                    return '';
+                }
+            }
         }
     },
     methods: {
-        selectFilter(filter){
+        selectFilter(filter) {
             this.$emit('updateFilter', filter);
         }
     },
@@ -23,6 +37,7 @@ export default {
         filter: String,
     }
 }
+
 </script>
 <style >
 .upload-image{

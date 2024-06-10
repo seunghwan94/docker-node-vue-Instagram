@@ -110,6 +110,7 @@ app.post('/load_post', (req, res) => {
                       b.img AS user_img
                     FROM tb_post a 
                     LEFT JOIN tb_user b ON a.user_id=b.id 
+                    where a.is_delete='N'
                     ORDER BY a.id DESC`;
   conn.query(query, (err, result) => {
     if (err) {

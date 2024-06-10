@@ -12,12 +12,12 @@
     <div class="main-body">
         <div v-if="is_main==0" >
             <div v-if="postList[0]">
-                <MainPost v-for="(a,i) in postList" :key="i" :post="a"/>
+                <MainPost v-for="(a,i) in postList" :key="i" :post="a" @modify_post="modify_post" @delete_post="delete_post"/>
             </div>
             <div v-else style="display: flex;align-items: center;justify-content: center;height: 75vh;color: gray;font-weight: bold;">게시글이 없습니다.</div>
         </div>
         <MainPostCreateImg v-if="is_main==1" :updateImg="updateImg" :filter="filter" @updateFilter="updateFilter"/>
-        <MainPostCreateText v-if="is_main==2" :updateImg="updateImg" :filter="filter" @updateText="updateText"/>
+        <MainPostCreateText v-if="is_main==2" :updateImg="updateImg" :filter="filter" :initialMainText="mainText" :initialSubText="subText" @updateText="updateText"/>
         <MainProfile v-if="is_main==3" :myProfile="myProfile" @click="load_profile" @profileEdit="profileEdit"/>
     </div>
     <div class="main-footer" style="justify-content: space-around;">
@@ -50,6 +50,7 @@ export default {
             filter: '',
             mainText: '',
             subText: '',
+            post_id:0,
             
             file: '',
         }
@@ -144,26 +145,16 @@ export default {
             });
         },
 
-
         updatePost() {
-            const formData = new FormData();
-            formData.append('image', this.file);
-
-            axios.post(BackURL+'/postImgDown', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            })
-            .then(response => {                
+            if(this.post_id){
                 const userData = {
-                    user_id: this.id,
-                    updateImg: response.data.split('/').pop(),
+                    id: this.post_id,
                     maintext: this.mainText,
                     subtext: this.subText,
-                    filter: this.filter
                 };
 
-                axios.post(BackURL+'/create_post', userData)
+                this.post_id=0;
+                axios.post(BackURL+'/modify_post', userData)
                 .then(response => {
                     console.log(response.data[0].id)
                     alert('포스팅 성공');
@@ -172,22 +163,84 @@ export default {
                         this.loadPost();
                         this.is_main = 0;
                     }, 1000);
-                    
-                    
                 })
                 .catch(error => {
-                    // 회원가입 실패 처리
                     console.log( error.response.data);
                     alert('포스팅 오류 \n' +error.response.data);
                     return;
                 });
+            }else{
+                const formData = new FormData();
+                formData.append('image', this.file);
 
+                axios.post(BackURL+'/postImgDown', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                })
+                .then(response => {                
+                    const userData = {
+                        user_id: this.id,
+                        updateImg: response.data.split('/').pop(),
+                        maintext: this.mainText,
+                        subtext: this.subText,
+                        filter: this.filter
+                    };
+
+                    axios.post(BackURL+'/create_post', userData)
+                    .then(response => {
+                        console.log(response.data[0].id)
+                        alert('포스팅 성공');
+                        
+                        setTimeout(() => {
+                            this.loadPost();
+                            this.is_main = 0;
+                        }, 1000);
+                    })
+                    .catch(error => {
+                        console.log( error.response.data);
+                        alert('포스팅 오류 \n' +error.response.data);
+                        return;
+                    });
+
+                })
+                .catch(error => {
+                    console.error(error);
+                    alert('게시글 업로드 error');
+                });
+            }
+        },
+        modify_post(list){
+            
+            this.post_id = list.post_id;
+            this.updateImg = list.post_img;
+            this.filter = list.post_filter;
+            this.mainText = list.post_maintext;
+            this.subText = list.post_subtext;
+            this.is_main=2;
+        },
+        delete_post(list){
+            const userData = {
+                id: list.post_id,
+            };
+
+
+            axios.post(BackURL+'/delete_post', userData)
+            .then(response => {
+                console.log(response.data[0].id)
+                alert('포스팅 삭제');
+                
+                setTimeout(() => {
+                    this.loadPost();
+                    this.is_main = 0;
+                }, 1000);
             })
             .catch(error => {
-                console.error(error);
-                alert('게시글 업로드 error');
+                console.log( error.response.data);
+                alert('포스팅 오류 \n' +error.response.data);
+                return;
             });
-        },
+        }
     },
     components:{
         MainPost,
