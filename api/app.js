@@ -108,7 +108,7 @@ app.post('/load_post', (req, res) => {
                     a.is_delete AS post_is_delete,
                     b.name AS user_name,
                     b.img AS user_img,
-                    (SELECT COUNT(id) FROM tb_likes WHERE a.user_id=user_id AND post_id=a.id)AS likes
+                    (SELECT COUNT(id) FROM tb_likes WHERE a.user_id=user_id AND post_id=a.id AND is_set = "Y")AS likes
                     FROM tb_post a 
                     LEFT JOIN tb_user b ON a.user_id=b.id 
                     ORDER BY a.id DESC
@@ -146,12 +146,14 @@ app.post('/load_profile', (req, res) => {
 
 app.post('/updateProfile', (req, res) => {
   const { user_pw,name,birth,user_id} = req.body;
-  const query2 = `UPDATE tb_post SET  
+  const currentDate = new Date();
+  const query2 = `UPDATE tb_user SET  
                   user_pw = ?
                   ,name = ?
-                  ,birth = ? 
+                  ,birth = ?
+                  ,update_date = ?
                   WHERE user_id = ?`;
-      conn.query(query2, [user_pw, name,birth,user_id], (err, result) => {
+      conn.query(query2, [user_pw, name,birth,currentDate,user_id], (err, result) => {
       if (err) {
       console.error("Database insert error:", err);
       res.status(500).send('Error UPDATE data into database');
@@ -160,9 +162,6 @@ app.post('/updateProfile', (req, res) => {
       }
   });
 });
-
-
-
 
 app.post('/create_post', (req, res) => {
   const { user_id, updateImg, maintext, subtext, filter } = req.body;
