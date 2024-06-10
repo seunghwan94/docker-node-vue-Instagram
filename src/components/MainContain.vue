@@ -1,5 +1,5 @@
 <template>
-    <div class="main-header">{{updateImg}}
+    <div class="main-header">
         <div v-if="is_main==1" class="main-button" @click="is_main=0" >Cancel</div>
         <div v-else-if="is_main==2" class="main-button" @click="is_main=1" >Back</div>
         <div v-else ></div>
@@ -10,10 +10,12 @@
         <div v-else ></div>
     </div>
     <div class="main-body">
-        <MainPost v-if="is_main==0"/>
+        <div v-if="is_main==0" >
+            <MainPost v-for="(a,i) in postList" :key="i" :post="a"/>
+        </div>
         <MainPostCreateImg v-if="is_main==1" :updateImg="updateImg" :filter="filter" @updateFilter="updateFilter"/>
         <MainPostCreateText v-if="is_main==2" :updateImg="updateImg" :filter="filter" @updateText="updateText"/>
-        <MainPost v-if="is_main==3"/>
+        <MainProfile v-if="is_main==3" :myProfile="myProfile" @click="load_profile" @profileEdit="profileEdit"/>
     </div>
     <div class="main-footer" style="justify-content: space-around;">
         <font-awesome-icon class="icon" :icon="['fas', 'house']" style="color:gray" size="2xl"  @click="is_main=0"/>
@@ -21,13 +23,14 @@
         <font-awesome-icon class="icon" :icon="['fas', 'plus-square']" flip="horizontal" size="2xl" @click="uploadButton"/>
         <input @change="upload" type="file" id="file" ref="fileInput" style="display: none;" />
 
-        <font-awesome-icon class="icon" :icon="['fas', 'user']" size="2xl" @click="is_main=2"/>
+        <font-awesome-icon class="icon" :icon="['fas', 'user']" size="2xl" @click="load_profile"/>
     </div>
 </template>
 <script>
 import MainPost from './MainPost.vue';
 import MainPostCreateImg from './MainPostCreateImg.vue';
 import MainPostCreateText from './MainPostCreateText.vue';
+import MainProfile from './MainProfile.vue';
 import axios from 'axios';
 import { BackURL } from '../main.js';
 
@@ -37,6 +40,7 @@ export default {
             id: sessionStorage.getItem('id'),
 
             postList:[],
+            myProfile:[],
             is_main: 0,
 
             updateImg : '',
@@ -47,7 +51,55 @@ export default {
             file: '',
         }
     },
+    mounted() {
+        this.loadPost();
+    },
     methods:{
+        load_profile() {
+            const userData = {
+                id: this.id
+            };
+
+            axios.post(`${BackURL}/load_profile`, userData)
+                .then(response => {
+                    this.myProfile = response.data;
+                    this.is_main = 3;
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        },
+        loadPost() {
+            axios.post(`${BackURL}/load_post`, {}, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            })
+            .then(response => {
+                this.postList = [];
+                this.postList = this.postList.concat(response.data);
+                
+            })
+            .catch(error => {
+                console.error(error);
+            });
+        },
+        profileEdit(updatedUser) {
+            // 업데이트된 사용자 정보를 처리
+            console.log(updatedUser);
+            alert('회원 정보를 변경 하시겠습니까?');
+            
+            axios.post(BackURL+'/updateProfile', updatedUser)
+                .then(response => {
+                    console.log('Profile updated successfully', response);
+                    this.is_set=0;
+                    alert('회원 정보가 변경 되었습니다.');
+                    this.loadProfile();
+                })
+                .catch(error => {
+                    console.error('Error updating profile:', error);
+                });
+        },
         uploadButton() {    
             this.$refs.fileInput.click();
         },
@@ -112,8 +164,13 @@ export default {
                 .then(response => {
                     console.log(response.data[0].id)
                     alert('포스팅 성공');
-                
-                    this.login=true;
+                    
+                    setTimeout(() => {
+                        this.loadPost();
+                        this.is_main = 0;
+                    }, 1000);
+                    
+                    
                 })
                 .catch(error => {
                     // 회원가입 실패 처리
@@ -133,6 +190,7 @@ export default {
         MainPost,
         MainPostCreateImg,
         MainPostCreateText,
+        MainProfile,
     }
 }
 </script>
@@ -164,6 +222,7 @@ export default {
 .main-body {
     height: 100%;
     width: 100%;
+    overflow-y: auto;
 }
 .icon{
     color: gray;

@@ -62,8 +62,8 @@ app.post('/signup', (req, res) => {
       if (result.length > 0) {
         res.status(300).send('중복된 아이디 입니다.');
       } else {
-        const query2 = 'INSERT INTO tb_user (user_id, user_pw, name, birth, insert_date) VALUES (?, ?, ?, ?, ? )';
-        conn.query(query2, [id, pw, name, birth, currentDate], (err, result) => {
+        const query2 = 'INSERT INTO tb_user (user_id, user_pw, name, birth,img, insert_date) VALUES (?, ?, ?, ?, ? )';
+        conn.query(query2, [id, pw, name, birth, 'user.png', currentDate], (err, result) => {
           if (err) {
             console.error("Database insert error:", err);
             res.status(500).send('Error inserting data into database');
@@ -96,9 +96,22 @@ app.post('/findIdPw', (req, res) => {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 app.post('/load_post', (req, res) => {
-  const { user_id } = req.body;
-  const query = 'select * from tb_post where user_id = ? DESC';
-  conn.query(query, [user_id], (err, result) => {
+  // const { user_id } = req.body;
+  const query = `    SELECT 
+                      a.id AS post_id,
+                      a.user_id AS post_user_id,
+                      a.img AS post_img,
+                      a.maintext AS post_maintext,
+                      a.subtext AS post_subtext,
+                      a.filter AS post_filter,
+                      a.insertdate AS post_insertdate,
+                      a.is_delete AS post_is_delete,
+                      b.name AS user_name,
+                      b.img AS user_img
+                    FROM tb_post a 
+                    LEFT JOIN tb_user b ON a.user_id=b.id 
+                    ORDER BY a.id DESC`;
+  conn.query(query, (err, result) => {
     if (err) {
       console.error("Database select error:", err);
       res.status(500).send('Error select data into database');
@@ -112,18 +125,34 @@ app.post('/load_post', (req, res) => {
   });
 });
 
+app.post('/load_profile', (req, res) => {
+  const { id } = req.body;
+  const query = `SELECT * FROM tb_user WHERE USER_id=?`;
+  conn.query(query, [id], (err, result) => {
+    if (err) {
+      console.error("Database select error:", err);
+      res.status(500).send('Error select data into database');
+    } else {
+      if (result.length > 0) {
+        res.status(200).json(result);
+      } else {
+        res.status(300).send('프로필 오류');
+      }
+    }
+  });
+});
 app.post('/create_post', (req, res) => {
   const { user_id, updateImg, maintext, subtext, filter } = req.body;
   const currentDate = new Date();
   const query2 = 'INSERT INTO tb_post (user_id, img, maintext, subtext, filter, insertdate) VALUES (?, ?, ?, ?, ?, ? )';
-      conn.query(query2, [user_id, updateImg, maintext, subtext, filter, currentDate], (err, result) => {
-      if (err) {
+  conn.query(query2, [user_id, updateImg, maintext, subtext, filter, currentDate], (err, result) => {
+    if (err) {
       console.error("Database insert error:", err);
       res.status(500).send('Error inserting data into database');
-      } else {
-        con
+    } else {
+
       res.status(200).send('Post created successfully');
-      }
+    }
   });
 });
 
@@ -207,10 +236,17 @@ const storage = multer.diskStorage({
     cb(null, uploadDir)
   },
   filename: function (req, file, cb) {
-    // 이름 설정
-    cb(null, Date.now() + path.extname(file.originalname));
+    // 파일 확장자를 소문자로 변환하여 확장자를 jpg로 수정
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (ext === '.jpg') {
+        cb(null, Date.now() + '.jpg');
+    } else {
+        cb(null, Date.now() + ext);
+    }
   }
 })
+
+
 const upload = multer({ storage: storage });
 app.post('/postImgDown', upload.single('image'), (req, res) => {
   // 이미지 파일의 정보 req.file 저장
