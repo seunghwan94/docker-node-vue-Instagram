@@ -37,7 +37,7 @@ mysqladmin -u root -p password "1234" -> 치고 enter 그냥 누르면됨(이상
 누를것)
 
 
-# chat에 root 권한 생성
+# insta에 root 권한 생성
 mysql -u root -p -> 접속완료 (비번 1234)
 CREATE USER 'insta'@'%' IDENTIFIED BY '1234';
 GRANT ALL PRIVILEGES ON *.* TO 'insta'@'%';
@@ -64,7 +64,7 @@ yum -y install nodejs
 
 ### 아무 위치에다가 git clone
 ```
-dd
+git clone https://github.com/seunghwan94/DockerVueInsta.git
 ```
 
 ### npm 실행
