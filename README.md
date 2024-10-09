@@ -1,5 +1,10 @@
 # 풀스택 개발 능력을 향상시키기 위해, Vue를 이용하여 SNS (instagram) 개발
 
+### 스크린샷
+<img width="1110" alt="DockerVueInstaLogin" src="https://github.com/user-attachments/assets/9d646e74-e74b-4704-a838-493e6c4441da">
+<img width="1117" alt="DockerVueInstaMain" src="https://github.com/user-attachments/assets/7756fc38-0dbc-40ef-a311-5c78daeb7d4a">
+
+
 ### docker 실행하여 CentOS 설치
 ```
 docker run -it -p 5222:22 -p 8080:8080 -p 3000:3000 -p 3306:3306 -p 5000:5000 --privileged -d --name insta centos:centos7 /sbin/init
