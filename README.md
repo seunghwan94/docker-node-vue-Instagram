@@ -1,4 +1,5 @@
-# 풀스택 개발 능력을 향상시키기 위해, Vue를 이용하여 SNS (instagram) 개발
+# 짭스타그램
+풀스택 개발 능력을 향상시키기 위해, Vue를 이용하여 SNS (instagram) 개발
 
 ### 스크린샷
 <img width="1110" alt="DockerVueInstaLogin" src="https://github.com/user-attachments/assets/9d646e74-e74b-4704-a838-493e6c4441da">
